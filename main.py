@@ -9,10 +9,8 @@ from backend import embedding
 from elasticsearch import Elasticsearch
 from deepface.detectors import FaceDetector
 from datetime import datetime
-import os
-from fastapi import FastAPI,Path
-from typing import Optional
-from pydantic import BaseModel
+
+
 models =  ["Facenet512","Dlib","ArcFace"]
 
 es = Elasticsearch([{'host': 'localhost', 'port': '9200'}])
