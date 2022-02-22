@@ -1,8 +1,0 @@
-streamlit
-cv2
-numpy
-re
-PIL
-Elasticsearch
-deepface.detectors
-datetime
