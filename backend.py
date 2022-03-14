@@ -7,7 +7,7 @@ from deepface.DeepFace import represent
 def embedding(img,model):
     detector_name = 'mtcnn'
 
-    models = ["Facenet512", "Dlib", "ArcFace"]
+    models = ["Facenet512", "ArcFace", "ArcFace"]
     if model not in models:
         raise Exception("model must be one of these:\n    Dlib,ArcFace,Facenet512")
     detector = build_model(detector_name)
