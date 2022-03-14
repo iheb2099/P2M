@@ -115,7 +115,7 @@ def form():
             if (uploaded_files is not None):
                 x = embedding(uploadPhotoFile(), 'Facenet512')[1]
                 result = [embedding(uploadPhotoFile(), 'Facenet512')[0],
-                          embedding(uploadPhotoFile(), 'ArcFace')[0], embedding(uploadPhotoFile(), 'ArcFace')[0]]
+                          embedding(uploadPhotoFile(), 'Dlib')[0], embedding(uploadPhotoFile(), 'ArcFace')[0]]
                 facesNumber = x
                 if facesNumber!=1:
                     st.write('there must be only 1 face')
