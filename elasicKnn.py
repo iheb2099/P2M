@@ -1,23 +1,21 @@
-from deepface.detectors import FaceDetector
-import cv2
-from deepface import DeepFace
+from deepface.detectors.FaceDetector import detect_faces,build_model
+from cv2 import imread,imshow,waitKey,FONT_HERSHEY_SIMPLEX,rectangle,putText
+from deepface.DeepFace import represent
 from elasticsearch import Elasticsearch
-from elasticsearch.helpers import scan
-import pandas as pd
 
 
 es = Elasticsearch([{'host': 'localhost', 'port': '9200'}])
 # crop and detect face
 detector_name = "mtcnn"
-detector = FaceDetector.build_model(detector_name)
+detector = build_model(detector_name)
 models = ["Facenet512", "Dlib", "ArcFace"]
 face_to_store = 'images/facetostore/benzarti.jpg'
 face_to_compare = 'images/comparaison/forum.jpg'
 
 
 def detectfaces(img_path):
-    img = cv2.imread(img_path)
-    obj = FaceDetector.detect_faces(detector, detector_name, img, align=True)
+    img = imread(img_path)
+    obj = detect_faces(detector, detector_name, img, align=True)
     [x, y, w, h] = obj[0][1]
     face = img[y:y + h, x:x + w]
     return face
@@ -26,9 +24,9 @@ def detectfaces(img_path):
 # calculation of the 3  feature vectors
 def storefaces(img_path):
     face = detectfaces(img_path)
-    embedding_arcface = DeepFace.represent(face, model_name=models[2], enforce_detection=False)
-    embedding_facenet = DeepFace.represent(face, model_name=models[0], enforce_detection=False)
-    embedding_dlib = DeepFace.represent(face, model_name=models[1], enforce_detection=False)
+    embedding_arcface = represent(face, model_name=models[2], enforce_detection=False)
+    embedding_facenet = represent(face, model_name=models[0], enforce_detection=False)
+    embedding_dlib = represent(face, model_name=models[1], enforce_detection=False)
     # #
     # # print("dlib",type(embedding_dlib),type(embedding_facenet),type(embedding_arcface))
     d = {"fname": img_path.split("/")[1].split('.')[0], 'lname': 'Belghouthi', 'classgroup': 'INDP2', 'classlevel': 'A',
@@ -40,50 +38,23 @@ def storefaces(img_path):
 
 
 # get the  feature from elasticsearch
-def get_data_from_elastic():
-    # query: The elasticsearch query.
-    query = {
-        "query": {
-            "match_all": {
-
-            }
-        }
-    }
-    # Scan function to get all the data.
-    rel = scan(client=es,
-               query=query,
-               scroll='3m',
-               index='knnfaces',
-               raise_on_error=True,
-               preserve_order=False,
-               clear_scroll=True)
-    #  response in a list.
-    result = list(rel)
-    temp = []
-    for hit in result:
-        temp.append(hit['_source'])
-    # Create a dataframe.
-    df = pd.DataFrame(temp)
-    return df
 
 
-df = get_data_from_elastic()
 # # df.to_csv(r'C:\Users\ASUS\Desktop\elastic\test.csv')
 #
-print(df.head(50))
 names = []
 
 
 def comparefaces(img_path_to_comp="images/"):
     # compare_faces( using 1 feature vector):
-    img1 = cv2.imread(img_path_to_comp)
-    obj1 = FaceDetector.detect_faces(detector, detector_name, img1, align=True)
+    img1 = imread(img_path_to_comp)
+    obj1 = detect_faces(detector, detector_name, img1, align=True)
     i = 0
     for facei in obj1:
         i += 1
-        embedding_dlib1 = DeepFace.represent(facei[0], model_name=models[1], enforce_detection=False ,align=True)
-        embedding_arcface1 = DeepFace.represent(facei[0], model_name=models[2], enforce_detection=False,align=True)
-        embedding_facenet1 = DeepFace.represent(facei[0], model_name=models[0], enforce_detection=False,align=True)
+        embedding_dlib1 = represent(facei[0], model_name=models[1], enforce_detection=False ,align=True)
+        embedding_arcface1 = represent(facei[0], model_name=models[2], enforce_detection=False,align=True)
+        embedding_facenet1 = represent(facei[0], model_name=models[0], enforce_detection=False,align=True)
 
         print("Face", i, "")
         queryDlib = {
@@ -161,20 +132,20 @@ def comparefaces(img_path_to_comp="images/"):
             print("there are ", len(obj1), " faces")
 
 
-obj1 = FaceDetector.detect_faces(detector, detector_name, cv2.imread(face_to_compare), align=True)
+obj1 = detect_faces(detector, detector_name, imread(face_to_compare), align=True)
 
 
 def showfaces(faces, image_path):
-    image = cv2.imread(image_path)
+    image = imread(image_path)
     faces = [x[1] for x in faces]
     for ((x, y, w, h), name) in zip(faces, names):
         # rescale the face coordinates
         # draw the predicted face name on the image
-        cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        cv2.putText(image, name, (x, y), cv2.FONT_HERSHEY_SIMPLEX,
+       rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+       putText(image, name, (x, y), FONT_HERSHEY_SIMPLEX,
                     0.75, (0, 255, 0), 2)
-    cv2.imshow("Frame", image)
-    cv2.waitKey(0)
+    imshow("Frame", image)
+    waitKey(0)
 
 # storefaces(face_to_store)
 comparefaces(face_to_compare)
