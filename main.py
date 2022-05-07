@@ -1,10 +1,8 @@
 import streamlit as st
 import cv2
-import pandas as pd
 import numpy as np
 import re
 from PIL import Image
-import time
 from backend import embedding
 from elasticsearch import Elasticsearch
 from deepface.detectors import FaceDetector
@@ -26,7 +24,7 @@ def is_email_valid(email):
 def load_image(image_file):
 	img = Image.open(image_file)
 	return img
-parent_dir='C:/Users/iheb9/PycharmProjects/Streamlit'
+parent_dir= '/'
 @st.cache(allow_output_mutation=True)
 def get_data():
     return []
@@ -88,34 +86,23 @@ def form():
 
                 return (cv2_img)
 
-    if st.text("pick a picture "):
-        uploaded_files = st.file_uploader("Upload Images", type=["png", "jpg", "jpeg"],
-                                          accept_multiple_files=True)
 
-
-    def uploadPhotoFile():
-        if uploaded_files is not None:
-
-            bytes_data = uploaded_files[0].getvalue()
-            cv2_img = cv2.imdecode(np.frombuffer(bytes_data, np.uint8), cv2.IMREAD_COLOR)
-
-            return (cv2_img)
     if st.button("Submit"):
         if first_name == "" or last_name == "" or status == "" :
             st.write('data not complete')
         if not (is_email_valid(email)):
             st.write("invalid email please use a supcom email")
-        if ( uploaded_files) is None:
+        if ( img_file_buffer) is None:
             st.write('you must take a picture')
         else:
             # if (img_file_buffer is not None):
             #     x=embedding(uploadImageWebcam(),'Facenet512')[1]
             #     result=[embedding(uploadImageWebcam(),'Facenet512')[0],embedding(uploadImageWebcam(),'Dlib')[0],embedding(uploadImageWebcam(),'ArcFace')[0]]
             #     facesNumber=x
-            if (uploaded_files is not None):
-                x = embedding(uploadPhotoFile(), 'Facenet512')[1]
-                result = [embedding(uploadPhotoFile(), 'Facenet512')[0],
-                          embedding(uploadPhotoFile(), 'Dlib')[0], embedding(uploadPhotoFile(), 'ArcFace')[0]]
+            if (img_file_buffer is not None):
+                x = embedding(uploadImageWebcam(), 'Facenet512')[1]
+                result = [embedding(uploadImageWebcam(), 'Facenet512')[0],
+                          embedding(uploadImageWebcam(), 'Dlib')[0], embedding(uploadImageWebcam(), 'ArcFace')[0]]
                 facesNumber = x
                 if facesNumber!=1:
                     st.write('there must be only 1 face')

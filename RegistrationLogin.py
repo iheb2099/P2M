@@ -1,6 +1,6 @@
 import streamlit_authenticator as stauth
 import streamlit as st
-from  main import form
+from main import form
 names = ['iheb Belghouthi ','Rebecca Briggs']
 usernames = ['iheb2099','rbriggs']
 passwords = ['123','456']
